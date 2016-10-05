@@ -11,14 +11,15 @@ import java.util.*;
  */
 public class BingResult {
     public static final int NUMBER = 10;
-    public static String accountKey;
-    public static String bingUrl;
-    public List<ResultTuple> list;
-    public Iterator<ResultTuple> iterator;
+    public static String accountKey, bingUrl;
     public static String query;
+    public List<ResultTuple> list, relevantList, irrelevantList;
+    public Iterator<ResultTuple> iterator;
 
     public BingResult(String query, String accountKey) throws IOException {
         this.list = new ArrayList<>();
+        this.relevantList = new ArrayList<>();
+        this.irrelevantList = new ArrayList<>();
         this.accountKey = accountKey;
         this.query = query;
         StringBuilder bingUrlBuilder = new StringBuilder();
@@ -79,6 +80,11 @@ public class BingResult {
         if (iterator.hasNext()) {
             ResultTuple tuple = iterator.next();
             tuple.printAndMark();
+            if (tuple.relevant) {
+                relevantList.add(tuple);
+            } else {
+                irrelevantList.add(tuple);
+            }
         }
     }
     // For test purpose
@@ -121,7 +127,7 @@ public class BingResult {
         public void printAndMark() throws IOException {
             System.out.printf("Result %d:\n[\n\tTitle  : %s\n\tURL    : %s\n\tSummary: %s\n]\nIs this page relevant? [y/n]\n", this.index, this.title, this.url, this.summary);
             String input = new BufferedReader(new InputStreamReader(System.in)).readLine();
-            relevant = input.compareToIgnoreCase("Y") == 0;
+            this.relevant = input.compareToIgnoreCase("Y") == 0;
         }
     }
 }
