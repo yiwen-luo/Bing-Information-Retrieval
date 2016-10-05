@@ -7,22 +7,18 @@ import java.util.Set;
 /**
  * Created by zhangzhiwang on 10/4/16.
  */
-public class RetrivalEngine {
+public class RetrievalEngine {
     private double targetPrecision;
-    private Set<String> stopWordDict;
+    public static Set<String> stopWordDict;
     private BingResult bingResult;
-    //  load stop word
-    //  query once -> retrieve 10 records
-    //  parse to User
-    //  User select result -> change query
+
     public void init(String accountKey, double precision) {
         this.stopWordDict = new HashSet<>();
         this.targetPrecision = precision;
         this.bingResult = new BingResult(accountKey,targetPrecision);
-        System.out.println("&&&&&&&");
+
         try {
             loadStopWords();
-            System.out.println("&&&&&&&");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -44,8 +40,5 @@ public class RetrivalEngine {
             this.stopWordDict.add(parts[0]);
         }
         in.close();
-        for(String word : stopWordDict) {
-            System.out.println(word);
-        }
     }
 }

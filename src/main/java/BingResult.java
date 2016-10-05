@@ -15,12 +15,20 @@ public class BingResult {
     public static String query;
     public List<ResultTuple> list, relevantList, irrelevantList;
     public Iterator<ResultTuple> iterator;
+    private boolean firstRound;
+    private double targetPrecision;
 
-    public BingResult(String query, String accountKey) throws IOException {
+    public BingResult(String accountKey, double targetPrecision)  {
+        this.accountKey = accountKey;
+        this.firstRound = true;
+        this.targetPrecision = targetPrecision;
+    }
+
+    public void performQuery(String query) throws IOException {
         this.list = new ArrayList<>();
         this.relevantList = new ArrayList<>();
         this.irrelevantList = new ArrayList<>();
-        this.accountKey = accountKey;
+        this.firstRound = true;
         this.query = query;
         StringBuilder bingUrlBuilder = new StringBuilder();
         bingUrlBuilder.append("https://api.datamarket.azure.com/Bing/Search/Web?Query=%27");
@@ -35,12 +43,13 @@ public class BingResult {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        this.firstRound = false;
         this.iterator = list.iterator();
         printResult();
     }
+
     // connect to bing and get the top 10 results, and save them as a list of tuples.
-    public void connectAndGetTenEntry() throws IOException {
+    private void connectAndGetTenEntry() throws IOException {
         byte[] accountKeyBytes = Base64.encodeBase64((accountKey + ":" + accountKey).getBytes());
         String accountKeyEnc = new String(accountKeyBytes);
 
@@ -59,7 +68,7 @@ public class BingResult {
             final JSONArray results = d.getJSONArray("results");
             final int resultsLength = results.length();
             // If the results length is less than 10 for the first round, exit.
-            if (Main.firstRound && resultsLength < 10) {
+            if (firstRound && resultsLength < 10) {
                 System.out.println("Less than ten results were found, the program will exit.");
                 System.exit(-1);
             }
@@ -89,7 +98,7 @@ public class BingResult {
     }
     // For test purpose
     public void printResult() throws IOException {
-        System.out.printf("Parameters : \nQuery = %s\nPrecision = %f\nURL: %s\nTotal no of results: %d\nBing Result Search\n", query, Main.targetPrecision, bingUrl, list.size());
+        System.out.printf("Parameters : \nQuery = %s\nPrecision = %f\nURL: %s\nTotal no of results: %d\nBing Result Search\n", query, this.targetPrecision, bingUrl, list.size());
         for (int i = 0; i < list.size(); i++) {
             printAndMarkOneEntry();
         }
