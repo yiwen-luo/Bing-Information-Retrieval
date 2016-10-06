@@ -15,6 +15,7 @@ public class BingResult {
     public List<ResultTuple> list, relevantList, irrelevantList;
     private boolean firstRound;
     private double targetPrecision;
+    public double actualPrecision;
 
     private static final int RESULT_NUM = 10;
     private static String accountKey, bingUrl;
@@ -24,13 +25,13 @@ public class BingResult {
         this.accountKey = accountKey;
         this.firstRound = true;
         this.targetPrecision = targetPrecision;
+        this.actualPrecision = 0.0;
     }
 
     public void performQuery(String query) throws IOException {
         this.list = new ArrayList<>();
         this.relevantList = new ArrayList<>();
         this.irrelevantList = new ArrayList<>();
-        this.firstRound = true;
         this.query = query;
         StringBuilder bingUrlBuilder = new StringBuilder();
         bingUrlBuilder.append("https://api.datamarket.azure.com/Bing/Search/Web?Query=%27");
@@ -98,7 +99,7 @@ public class BingResult {
         System.out.println("Parameters : ");
         System.out.println("Client Key = " + accountKey);
         System.out.println("Query      = " + query);
-        System.out.println("Precision  = " + targetPrecision);
+        System.out.println("Precision  = " + this.targetPrecision);
         System.out.println("URL: " + bingUrl);
         System.out.println("Total no of results: " + RESULT_NUM);
         System.out.println("Bing Search Results:");
@@ -109,7 +110,8 @@ public class BingResult {
         System.out.println("======================");
         System.out.println("FEEDBACK SUMMARY");
         System.out.println("Query: " + query);
-        System.out.printf("Precision: %.1f\n", getPrecision());
+        updatePrecision();
+        System.out.printf("Precision: %.1f\n", actualPrecision);
     }
 
     private void printAndMarkEntries() throws IOException {
@@ -123,9 +125,9 @@ public class BingResult {
         }
     }
 
-    private double getPrecision() {
+    private void updatePrecision() {
         if (list.size() == 0) {
-            return 0.0;
+            actualPrecision = 0.0;
         }
         int count = 0;
         for (ResultTuple tuple : list) {
@@ -133,7 +135,7 @@ public class BingResult {
                 count++;
             }
         }
-        return count / (double) list.size();
+        actualPrecision = count / (double) list.size();
     }
 
     // ResultTuple keeps track of the metadata for each result entry.

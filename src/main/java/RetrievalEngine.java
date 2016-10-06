@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class RetrievalEngine {
     private double targetPrecision;
-    private BingResult bingResult;
+    public BingResult bingResult;
 
     public static Set<String> stopWordDict;
 
