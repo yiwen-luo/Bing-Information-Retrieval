@@ -4,19 +4,16 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by zhangzhiwang on 10/4/16.
- */
 public class RetrievalEngine {
     private double targetPrecision;
-    public static Set<String> stopWordDict;
     private BingResult bingResult;
 
-    public void init(String accountKey, double precision) {
-        this.stopWordDict = new HashSet<>();
-        this.targetPrecision = precision;
-        this.bingResult = new BingResult(accountKey,targetPrecision);
+    public static Set<String> stopWordDict;
 
+    public void init(String accountKey, double precision) {
+        this.targetPrecision = precision;
+        this.bingResult = new BingResult(accountKey, targetPrecision);
+        stopWordDict = new HashSet<>();
         try {
             loadStopWords();
         } catch (IOException e) {
@@ -37,7 +34,7 @@ public class RetrievalEngine {
         String line = "";
         while ((line = in.readLine()) != null) {
             String parts[] = line.split("\t");
-            this.stopWordDict.add(parts[0]);
+            stopWordDict.add(parts[0]);
         }
         in.close();
     }

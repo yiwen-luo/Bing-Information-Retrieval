@@ -1,7 +1,6 @@
-/**
- * Created by zhangzhiwang on 10/4/16.
- */
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Vector {
     // key -> word in the documents     value -> frequency of the word

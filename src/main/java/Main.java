@@ -1,6 +1,5 @@
 public class Main {
 
-
     public static void main(String[] args) {
         //Input format <bing account key> <precision> <query>
         if (args.length != 3) {
@@ -12,5 +11,4 @@ public class Main {
         engine.query(args[2]);
 
     }
-
 }

@@ -1,24 +1,26 @@
+import org.apache.commons.codec.binary.Base64;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import org.json.*;
-import org.apache.commons.codec.binary.Base64;
-import java.util.*;
-/**
- * Created by zhangzhiwang on 10/3/16.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class BingResult {
-    public static final int NUMBER = 10;
-    public static String accountKey, bingUrl;
-    public static String query;
     public List<ResultTuple> list, relevantList, irrelevantList;
-    public Iterator<ResultTuple> iterator;
     private boolean firstRound;
     private double targetPrecision;
 
-    public BingResult(String accountKey, double targetPrecision)  {
+    private static final int RESULT_NUM = 10;
+    private static String accountKey, bingUrl;
+    private static String query;
+
+    public BingResult(String accountKey, double targetPrecision) {
         this.accountKey = accountKey;
         this.firstRound = true;
         this.targetPrecision = targetPrecision;
@@ -34,22 +36,21 @@ public class BingResult {
         bingUrlBuilder.append("https://api.datamarket.azure.com/Bing/Search/Web?Query=%27");
         bingUrlBuilder.append(query);
         bingUrlBuilder.append("%27&$top=");
-        bingUrlBuilder.append(String.valueOf(NUMBER));
+        bingUrlBuilder.append(String.valueOf(RESULT_NUM));
         bingUrlBuilder.append("&$format=json");
         this.bingUrl = bingUrlBuilder.toString();
 
         try {
-            connectAndGetTenEntry();
+            queryBing();
         } catch (IOException e) {
             e.printStackTrace();
         }
         this.firstRound = false;
-        this.iterator = list.iterator();
         printResult();
     }
 
-    // connect to bing and get the top 10 results, and save them as a list of tuples.
-    private void connectAndGetTenEntry() throws IOException {
+    // connect to bing and get the top RESULT_NUM results, and save them as a list of tuples.
+    private void queryBing() throws IOException {
         byte[] accountKeyBytes = Base64.encodeBase64((accountKey + ":" + accountKey).getBytes());
         String accountKeyEnc = new String(accountKeyBytes);
 
@@ -67,8 +68,9 @@ public class BingResult {
             final JSONObject d = json.getJSONObject("d");
             final JSONArray results = d.getJSONArray("results");
             final int resultsLength = results.length();
-            // If the results length is less than 10 for the first round, exit.
-            if (firstRound && resultsLength < 10) {
+
+            // If the results length is less than RESULT_NUM for the first round, exit.
+            if (firstRound && resultsLength < RESULT_NUM) {
                 System.out.println("Less than ten results were found, the program will exit.");
                 System.exit(-1);
             }
@@ -85,9 +87,33 @@ public class BingResult {
             e.printStackTrace();
         }
     }
-    public void printAndMarkOneEntry() throws IOException {
-        if (iterator.hasNext()) {
-            ResultTuple tuple = iterator.next();
+
+    private void printResult() throws IOException {
+        printHeader();
+        printAndMarkEntries();
+        printFooter();
+    }
+
+    private void printHeader() {
+        System.out.println("Parameters : ");
+        System.out.println("Client Key = " + accountKey);
+        System.out.println("Query      = " + query);
+        System.out.println("Precision  = " + targetPrecision);
+        System.out.println("URL: " + bingUrl);
+        System.out.println("Total no of results: " + RESULT_NUM);
+        System.out.println("Bing Search Results:");
+        System.out.println("======================");
+    }
+
+    private void printFooter() {
+        System.out.println("======================");
+        System.out.println("FEEDBACK SUMMARY");
+        System.out.println("Query: " + query);
+        System.out.printf("Precision: %.1f\n", getPrecision());
+    }
+
+    private void printAndMarkEntries() throws IOException {
+        for (ResultTuple tuple : list) {
             tuple.printAndMark();
             if (tuple.relevant) {
                 relevantList.add(tuple);
@@ -96,31 +122,22 @@ public class BingResult {
             }
         }
     }
-    // For test purpose
-    public void printResult() throws IOException {
-        System.out.printf("Parameters : \nQuery = %s\nPrecision = %f\nURL: %s\nTotal no of results: %d\nBing Result Search\n", query, this.targetPrecision, bingUrl, list.size());
-        for (int i = 0; i < list.size(); i++) {
-            printAndMarkOneEntry();
-        }
-        System.out.println("================================");
-        System.out.printf("Query : %s\nPrecision : %f\n", query, calculatePrecision());
 
-    }
-
-    public double calculatePrecision() {
-        int count = 0;
+    private double getPrecision() {
         if (list.size() == 0) {
-            return 0;
+            return 0.0;
         }
+        int count = 0;
         for (ResultTuple tuple : list) {
             if (tuple.relevant) {
                 count++;
             }
         }
-        return (double) count / (double) list.size();
+        return count / (double) list.size();
     }
+
     // ResultTuple keeps track of the metadata for each result entry.
-    public class ResultTuple{
+    public class ResultTuple {
         public String summary, url, title;
         public int index;
         public boolean relevant;
@@ -134,7 +151,14 @@ public class BingResult {
         }
 
         public void printAndMark() throws IOException {
-            System.out.printf("Result %d:\n[\n\tTitle  : %s\n\tURL    : %s\n\tSummary: %s\n]\nIs this page relevant? [y/n]\n", this.index, this.title, this.url, this.summary);
+            System.out.println("Result: " + index);
+            System.out.println("[");
+            System.out.println(" URL: " + url);
+            System.out.println(" Title: " + title);
+            System.out.println(" Summary: " + summary);
+            System.out.println("]");
+            System.out.print("Relevant (Y/N)?");
+
             String input = new BufferedReader(new InputStreamReader(System.in)).readLine();
             this.relevant = input.compareToIgnoreCase("Y") == 0;
         }
