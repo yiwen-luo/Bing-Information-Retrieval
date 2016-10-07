@@ -13,7 +13,9 @@ import java.util.List;
 
 public class BingResult {
     private List<ResultTuple> list, relevantList, irrelevantList;
-    private List<List<ResultTuple>> localList, localRelList, localIrrlist;
+    private List<List<ResultTuple>> localList = new ArrayList<List<ResultTuple>>(),
+            localRelList= new ArrayList<List<ResultTuple>>(),
+            localIrrlist= new ArrayList<List<ResultTuple>>();
     private boolean firstRound;
     private double targetPrecision;
     public double actualPrecision;
@@ -49,11 +51,11 @@ public class BingResult {
         return this.localList;
     }
 
-    public List<List<ResultTuple>> getLocalRelList(){
+    public List<List<ResultTuple>> getLocalRelList() {
         return this.localRelList;
     }
 
-    public List<List<ResultTuple>> getLocalIrrlist(){
+    public List<List<ResultTuple>> getLocalIrrlist() {
         return this.localIrrlist;
     }
 
@@ -112,7 +114,13 @@ public class BingResult {
 
                 ResultTuple tuple = new ResultTuple(Url, title, description, i + 1);
                 list.add(tuple);
-                localList.get(i).add(tuple);
+                try {
+                    localList.get(i).add(tuple);
+                } catch (Exception e) {
+                    List tempList = new ArrayList<ResultTuple>();
+                    tempList.add(tuple);
+                    localList.add(tempList);
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -150,11 +158,23 @@ public class BingResult {
             tuple.printAndMark();
             if (tuple.relevant) {
                 relevantList.add(tuple);
-                localRelList.get(i).add(tuple);
+                try {
+                    localRelList.get(i).add(tuple);
+                } catch (Exception e) {
+                    List tempList = new ArrayList<ResultTuple>();
+                    tempList.add(tuple);
+                    localRelList.add(tempList);
+                }
 
             } else {
                 irrelevantList.add(tuple);
-                localIrrlist.get(i).add(tuple);
+                try {
+                    localIrrlist.get(i).add(tuple);
+                } catch (Exception e) {
+                    List tempList = new ArrayList<ResultTuple>();
+                    tempList.add(tuple);
+                    localIrrlist.add(tempList);
+                }
             }
             i++;
         }

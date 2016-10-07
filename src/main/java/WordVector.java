@@ -1,5 +1,4 @@
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class WordVector {
@@ -10,7 +9,7 @@ public class WordVector {
     public WordVector(List<BingResult.ResultTuple> list) {
         docVector = new TreeMap<>();
         for (BingResult.ResultTuple tuple : list) {
-            String textContent = tuple.title + tuple.summary;
+            String textContent = tuple.title + " " + tuple.summary;
             String[] text = textContent.split("\\s+");
             for (String word : text) {
                 String wordLowerCase = word.toLowerCase();
@@ -36,7 +35,7 @@ public class WordVector {
         }
     }
 
-    public TreeMap<String, Integer> getDocVector(){
+    public TreeMap<String, Integer> getDocVector() {
         return this.docVector;
     }
 }

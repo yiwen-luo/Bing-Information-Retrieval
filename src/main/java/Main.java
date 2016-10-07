@@ -1,3 +1,5 @@
+import java.util.TreeMap;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -14,13 +16,14 @@ public class Main {
         engine.init(bingKey, targetPrecision);
         engine.query(query);
         BingResult bingResult = engine.getBingResult();
+        TreeMap<String, Double> q0 = new TreeMap<>();
         while (bingResult.getActualPrecision() < targetPrecision) {
             System.out.printf("Still below the desired precision of %.1f\n", targetPrecision);
-            WordVector fullList = new WordVector(bingResult.getList());
-            WordVector relList = new WordVector(bingResult.getRelevantList());
-            WordVector irrList = new WordVector(bingResult.getIrrelevantList());
-            RocchioObject rocchioObj = new RocchioObject(fullList, relList, irrList, query);
-//            query = rocchioObj
+            RocchioObject rocchioObj = new RocchioObject(bingResult.getList(),
+                    bingResult.getRelevantList(), bingResult.getIrrelevantList(), bingResult.getLocalList(),
+                    bingResult.getLocalRelList(), bingResult.getLocalIrrlist(), query, q0);
+            query = rocchioObj.getNewQuery();
+            q0 = rocchioObj.getQ0();
             engine.query(query);
         }
         System.out.println("Desired precision reached, done");
