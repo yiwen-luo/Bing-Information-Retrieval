@@ -45,6 +45,8 @@ public class RocchioObject {
             score.put(entry.getKey(), calScore(entry.getKey(), relDocVector, irrDocVector));
         }
 
+        System.out.println(score.toString());
+
         int stopCounter = 0;
         String[] originList = originQuery.split("\\s+");
         while (stopCounter < 2) {
@@ -94,6 +96,16 @@ public class RocchioObject {
             TreeMap<String, Integer> localRelDocVector = localRel.getDocVector();
             TreeMap<String, Double> relTf = calTf(localRelDocVector);
             if (localRelDocVector.containsKey(term)) {
+                /*try {
+                    relTf.get(term);
+                    relIdf.get(term);
+
+                } catch (Exception e){
+                    continue;
+                }*/
+                if (!relTf.containsKey(term) || !relIdf.containsKey(term)) {
+                    continue;
+                }
                 dRel += relTf.get(term) * relIdf.get(term);
                 relCounter++;
             }
@@ -104,6 +116,13 @@ public class RocchioObject {
             TreeMap<String, Integer> localIrrDocVector = localIrr.getDocVector();
             TreeMap<String, Double> irrTf = calTf(localIrrDocVector);
             if (localIrrDocVector.containsKey(term)) {
+                try {
+                    irrTf.get(term);
+                    irrIdf.get(term);
+
+                } catch (Exception e){
+                    continue;
+                }
                 dIrr += irrTf.get(term) * irrIdf.get(term);
                 irrCounter++;
             }
@@ -113,7 +132,7 @@ public class RocchioObject {
             localScore += BETA * dRel / relCounter;
         }
         if (irrCounter > 0) {
-            localScore += GAMMA * dIrr / irrCounter;
+            localScore -= GAMMA * dIrr / irrCounter;
         }
         return localScore;
     }
