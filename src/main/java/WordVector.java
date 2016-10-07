@@ -2,19 +2,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class Vector {
+public class WordVector {
     // key -> word in the documents     value -> frequency of the word
     // docVector saves the sum of document vector for relevant document list or irrelevant document list
-    public Map<String, Integer> docVector;
+    public TreeMap<String, Integer> docVector;
 
-    public Vector(List<BingResult.ResultTuple> list) {
+    public WordVector(List<BingResult.ResultTuple> list) {
         docVector = new TreeMap<>();
         for (BingResult.ResultTuple tuple : list) {
             String textContent = tuple.title + tuple.summary;
             String[] text = textContent.split("\\s+");
             for (String word : text) {
                 String wordLowerCase = word.toLowerCase();
-                if (RetrievalEngine.stopWordDict.contains(wordLowerCase)) {
+                if (BingHandler.stopWordDict.contains(wordLowerCase)) {
                     continue;
                 }
                 if (docVector.containsKey(wordLowerCase)) {
@@ -24,5 +24,9 @@ public class Vector {
                 }
             }
         }
+    }
+
+    public TreeMap<String, Integer> getDocVector(){
+        return this.docVector;
     }
 }

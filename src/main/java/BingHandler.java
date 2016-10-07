@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RetrievalEngine {
+public class BingHandler {
     private double targetPrecision;
     public BingResult bingResult;
 
@@ -19,6 +19,10 @@ public class RetrievalEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public BingResult getBingResult(){
+        return this.bingResult;
     }
 
     public void query(String query) {

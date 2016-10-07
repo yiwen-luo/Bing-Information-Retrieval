@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BingResult {
-    public List<ResultTuple> list, relevantList, irrelevantList;
+    private List<ResultTuple> list, relevantList, irrelevantList;
+    private List<List<ResultTuple>> localList, localRelList, localIrrlist;
     private boolean firstRound;
     private double targetPrecision;
     public double actualPrecision;
@@ -26,6 +27,34 @@ public class BingResult {
         this.firstRound = true;
         this.targetPrecision = targetPrecision;
         this.actualPrecision = 0.0;
+    }
+
+    public double getActualPrecision() {
+        return this.actualPrecision;
+    }
+
+    public List<ResultTuple> getList() {
+        return this.list;
+    }
+
+    public List<ResultTuple> getRelevantList() {
+        return this.relevantList;
+    }
+
+    public List<ResultTuple> getIrrelevantList() {
+        return this.irrelevantList;
+    }
+
+    public List<List<ResultTuple>> getLocalList() {
+        return this.localList;
+    }
+
+    public List<List<ResultTuple>> getLocalRelList(){
+        return this.localRelList;
+    }
+
+    public List<List<ResultTuple>> getLocalIrrlist(){
+        return this.localIrrlist;
     }
 
     public void performQuery(String query) throws IOException {
@@ -83,6 +112,7 @@ public class BingResult {
 
                 ResultTuple tuple = new ResultTuple(Url, title, description, i + 1);
                 list.add(tuple);
+                localList.get(i).add(tuple);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -115,13 +145,18 @@ public class BingResult {
     }
 
     private void printAndMarkEntries() throws IOException {
+        int i = 0;
         for (ResultTuple tuple : list) {
             tuple.printAndMark();
             if (tuple.relevant) {
                 relevantList.add(tuple);
+                localRelList.get(i).add(tuple);
+
             } else {
                 irrelevantList.add(tuple);
+                localIrrlist.get(i).add(tuple);
             }
+            i++;
         }
     }
 
