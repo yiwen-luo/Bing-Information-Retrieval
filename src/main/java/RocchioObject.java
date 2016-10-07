@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -45,32 +44,37 @@ public class RocchioObject {
             score.put(entry.getKey(), calScore(entry.getKey(), relDocVector, irrDocVector));
         }
 
-        System.out.println(score.toString());
-
         int stopCounter = 0;
-        String[] originList = originQuery.split("\\s+");
+        String[] originList = originQuery.split("\\+");
         while (stopCounter < 2) {
-            String newWord = score.lastKey();
-            System.out.println(score.lastEntry().toString());
-            if (newWord.charAt(0) < 'a' || newWord.charAt(0) > 'z'
-                    || newWord.charAt(newWord.length()-1) < 'a'
-                    || newWord.charAt(newWord.length()-1) > 'z'){
-                score.remove(newWord);
-                continue;
-            }
-
+            String newWord = getMaxKey(score);
+            System.out.println(newWord);
             for (int i = 0; i < originList.length; i++) {
                 if (originList[i].equals(newWord)) {
                     score.remove(newWord);
-                    newWord = score.lastKey();
+                    newWord = getMaxKey(score);
                 } else {
                     result += ("+" + newWord);
                     score.remove(newWord);
+                    newWord = getMaxKey(score);
                     stopCounter++;
                 }
             }
         }
         return result;
+    }
+
+    private String getMaxKey(Map<String, Double> map) {
+        double maxTemp = 0.0;
+        String maxKey = "";
+        for (Map.Entry<String, Double> tuple : map.entrySet()) {
+            if (tuple.getValue() > maxTemp) {
+
+                maxTemp = tuple.getValue();
+                maxKey = tuple.getKey();
+            }
+        }
+        return maxKey;
     }
 
     public TreeMap<String, Double> getQ0() {
@@ -96,18 +100,12 @@ public class RocchioObject {
             TreeMap<String, Integer> localRelDocVector = localRel.getDocVector();
             TreeMap<String, Double> relTf = calTf(localRelDocVector);
             if (localRelDocVector.containsKey(term)) {
-                /*try {
-                    relTf.get(term);
-                    relIdf.get(term);
-
-                } catch (Exception e){
-                    continue;
-                }*/
-                if (!relTf.containsKey(term) || !relIdf.containsKey(term)) {
-                    continue;
+                try {
+                    dRel += relTf.get(term) * relIdf.get(term);
+                    relCounter++;
+                } catch (Exception e) {
+                    e.getStackTrace();
                 }
-                dRel += relTf.get(term) * relIdf.get(term);
-                relCounter++;
             }
         }
 
@@ -117,30 +115,32 @@ public class RocchioObject {
             TreeMap<String, Double> irrTf = calTf(localIrrDocVector);
             if (localIrrDocVector.containsKey(term)) {
                 try {
-                    irrTf.get(term);
-                    irrIdf.get(term);
-
-                } catch (Exception e){
-                    continue;
+                    dIrr += irrTf.get(term) * irrIdf.get(term);
+                    irrCounter++;
+                } catch (Exception e) {
+                    e.getStackTrace();
                 }
-                dIrr += irrTf.get(term) * irrIdf.get(term);
-                irrCounter++;
             }
         }
 
         if (relCounter > 0) {
-            localScore += BETA * dRel / relCounter;
+            localScore += BETA * dRel / (double) relCounter;
         }
         if (irrCounter > 0) {
-            localScore -= GAMMA * dIrr / irrCounter;
+            localScore -= GAMMA * dIrr / (double) irrCounter;
         }
         return localScore;
     }
 
     private TreeMap<String, Double> calTf(TreeMap<String, Integer> docVector) {
         TreeMap<String, Double> result = new TreeMap<>();
+        int maxCount = 0;
         for (Map.Entry<String, Integer> entry : docVector.entrySet()) {
-            result.put(entry.getKey(), 0.5D + 0.5D * entry.getValue() / docVector.lastEntry().getValue());
+            if (entry.getValue() > maxCount)
+                maxCount = entry.getValue();
+        }
+        for (Map.Entry<String, Integer> entry : docVector.entrySet()) {
+            result.put(entry.getKey(), 0.5D + 0.5D * entry.getValue() / maxCount);
         }
         return result;
     }
@@ -157,7 +157,7 @@ public class RocchioObject {
                     counter++;
                 }
             }
-            result.put(globalTerm.getKey(), Math.log((double) localTuplesFull.size() / (counter + 1.0)));
+            result.put(globalTerm.getKey(), Math.log((double) localTuplesFull.size() / counter + 1.0));
         }
         return result;
     }
