@@ -14,6 +14,16 @@ public class WordVector {
             String[] text = textContent.split("\\s+");
             for (String word : text) {
                 String wordLowerCase = word.toLowerCase();
+                boolean isValid = true;
+                for (Character ch : wordLowerCase.toCharArray()) {
+                    if (!Character.isAlphabetic(ch)) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (!isValid) {
+                    continue;
+                }
                 if (BingHandler.stopWordDict.contains(wordLowerCase)) {
                     continue;
                 }
