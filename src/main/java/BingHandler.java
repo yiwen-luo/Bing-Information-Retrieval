@@ -21,7 +21,7 @@ public class BingHandler {
         }
     }
 
-    public BingResult getBingResult(){
+    public BingResult getBingResult() {
         return this.bingResult;
     }
 

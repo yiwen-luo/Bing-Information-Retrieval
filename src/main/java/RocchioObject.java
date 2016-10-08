@@ -48,7 +48,6 @@ public class RocchioObject {
         String[] originList = originQuery.split("\\+");
         while (stopCounter < 2) {
             String newWord = getMaxKey(score);
-            System.out.println(newWord);
             for (int i = 0; i < originList.length; i++) {
                 if (originList[i].equals(newWord)) {
                     score.remove(newWord);

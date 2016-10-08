@@ -14,8 +14,8 @@ import java.util.List;
 public class BingResult {
     private List<ResultTuple> list, relevantList, irrelevantList;
     private List<List<ResultTuple>> localList = new ArrayList<List<ResultTuple>>(),
-            localRelList= new ArrayList<List<ResultTuple>>(),
-            localIrrlist= new ArrayList<List<ResultTuple>>();
+            localRelList = new ArrayList<List<ResultTuple>>(),
+            localIrrlist = new ArrayList<List<ResultTuple>>();
     private boolean firstRound;
     private double targetPrecision;
     public double actualPrecision;

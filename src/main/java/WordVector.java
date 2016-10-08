@@ -1,7 +1,8 @@
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
-import java.util.*;
+
 public class WordVector {
     // key -> word in the documents     value -> frequency of the word
     // docVector saves the sum of document vector for relevant document list or irrelevant document list
