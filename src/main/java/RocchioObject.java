@@ -46,7 +46,7 @@ public class RocchioObject {
 
         int stopCounter = 0;
         String[] originList = originQuery.split("\\+");
-        while (stopCounter < 2) {
+        while (true) {
             String newWord = getMaxKey(score);
             for (int i = 0; i < originList.length; i++) {
                 if (originList[i].equals(newWord)) {
@@ -58,9 +58,11 @@ public class RocchioObject {
                     newWord = getMaxKey(score);
                     stopCounter++;
                 }
+                if (stopCounter >=2 ){
+                    return result;
+                }
             }
         }
-        return result;
     }
 
     private String getMaxKey(Map<String, Double> map) {
