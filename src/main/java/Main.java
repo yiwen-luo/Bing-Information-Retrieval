@@ -12,10 +12,10 @@ public class Main {
         final double targetPrecision = Double.parseDouble(args[1]);
         String query = args[2];
 
-        BingHandler engine = new BingHandler();
-        engine.init(bingKey, targetPrecision);
-        engine.query(query);
-        BingResult bingResult = engine.getBingResult();
+        BingHandler bingHandler = new BingHandler();
+        bingHandler.init(bingKey, targetPrecision);
+        bingHandler.query(query);
+        BingResult bingResult = bingHandler.getBingResult();
         TreeMap<String, Double> q0 = new TreeMap<>();
         while (bingResult.getActualPrecision() < targetPrecision) {
             System.out.printf("Still below the desired precision of %.1f\n", targetPrecision);
@@ -24,7 +24,7 @@ public class Main {
                     bingResult.getLocalRelList(), bingResult.getLocalIrrlist(), query, q0);
             query = rocchioObj.getNewQuery();
             q0 = rocchioObj.getQ0();
-            engine.query(query);
+            bingHandler.query(query);
         }
         System.out.println("Desired precision reached, done");
     }
